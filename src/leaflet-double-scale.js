@@ -12,14 +12,14 @@
 
 	L.Control.DoubleScale = L.Control.extend({
 		options: {
-			type: 'metric', //'metric', 'nautical' or 'both'
+			type: 'both', //'metric', 'nautical' or 'both'
 			position: 'bottomleft',
       updateWhenIdle: false,
       minUnitWidth: 40,
-      maxUnitsWidth: 240,
+      maxUnitsWidth: 200,
 			fill: 'hollow',
-			backgroundColor	: 'transparent',
-			opacity					: 1,
+			backgroundColor	: 'white',
+			opacity					: 0.4,
       showSubunits: false,
       doubleLine: false,
       labelPlacement: 'auto' 
