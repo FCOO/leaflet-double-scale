@@ -46,12 +46,17 @@ Default: `metric`
 ### position
 leaflet.Control [options.position](http://leafletjs.com/reference.html#control-options)
 
+### decimalSeparator
+`"."` or `","`
+Default: System default
+Thousand-separator will be set automatic (`1.000,12` or `1,000.12`) 
+
 ### backgroundColor
-Default: `transparent`
+Default: `white`
 
 ### opacity
 The opacity of the background of the scale
-Default: `1.0`
+Default: `0.4`
 
 ### maxUnitsWidth
 Max width of the scale

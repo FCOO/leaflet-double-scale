@@ -12,18 +12,22 @@
 
 	L.Control.DoubleScale = L.Control.extend({
 		options: {
-			type: 'both', //'metric', 'nautical' or 'both'
-			position: 'bottomleft',
-      updateWhenIdle: false,
-      minUnitWidth: 40,
-      maxUnitsWidth: 200,
-			fill: 'hollow',
+			type						: 'both', //'metric', 'nautical' or 'both'
+			position				: 'bottomleft',
+      updateWhenIdle	: false,
+      minUnitWidth		: 40,
+      maxUnitsWidth		: 200,
+			fill						: 'hollow',
 			backgroundColor	: 'white',
 			opacity					: 0.4,
-      showSubunits: false,
-      doubleLine: false,
-      labelPlacement: 'auto' 
-		
+      showSubunits		: false,
+      doubleLine			: false,
+      labelPlacement	: 'auto',
+			decimalSeparator: function(){
+				var n = 1.1;
+				n = n.toLocaleString();
+				return n.indexOf('.') > -1 ? '.' : n.indexOf(',') > -1 ? ',' : '.';
+			}()
 			
 		},
 
@@ -344,7 +348,8 @@
     },
 
     _renderPart: function(px, meters, num, divisions, divisionsLbls) {
-			var displayUnit = this._getDisplayUnit(meters);
+			var displayUnit = this._getDisplayUnit(meters),
+					thousandSeparator = this.options.decimalSeparator == '.' ? ',' : '.';
 			for (var i = 0; i < this._units.length; i++) {
 				var division = divisions[i];
 				if (i < num) {
@@ -363,6 +368,11 @@
 				if (i < num) {
 					var lblText = ( (i+1)*displayUnit.amount );
 					lblText = Math.round(lblText*100)/100; //Round to 2 two decimals
+				
+					//Format number to 1.000,12 or 1,000.12
+					var parts = lblText.toString().split(".");
+					parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousandSeparator);
+			    lblText = parts.join(this.options.decimalSeparator);
 				
 					if (i === num-1) {
 						lblText += displayUnit.unit;
@@ -386,12 +396,11 @@
 					amount: (displayUnit === 'km') ? meters / 1000 : meters
 				};
 			}
-			else {
+			else 
 				return {
 					unit	: 'nm',
 					amount: meters /1000
 				};
-			}
 		}
 	});
 
