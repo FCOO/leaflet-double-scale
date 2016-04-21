@@ -21,7 +21,13 @@ $borderWidth			: 1px;
 $color						: #000;
 $fillLineHeight		: 2px;
 $fillHollowPadding: 1px;
-$lineHeightPx			: 12*1.5px; //From .leaflet-container { font: 12px/1.5; ... }
+$fontSize					: 10px;
+$lineHeightPx			: $fontSize*1.5;
+$labelMargin			: $lineHeightPx;
+
+$innerMarginTopAndBottom: $fontSize*0.6;
+$innerMarginLeftAndRight: $fontSize*1.0;
+$innerPaddingRight			: $fontSize*1.5;
 
 
 /*
@@ -63,12 +69,12 @@ If options.type != 'both' the structure is:
 	cursor: pointer;
 	&:hover {
 		border: 1px solid black;
-		opacity	: 0.95;
 		background-color: rgba(255, 255, 255, 0.6);
 	}
 }
 
 .leaflet-control-graphicscale-outer {
+	font-size: $fontSize;
 
 	.leaflet-control-graphicscale { 
 		position: relative;
@@ -84,8 +90,13 @@ If options.type != 'both' the structure is:
 } //end of .leaflet-control-graphicscale-outer
 
 .leaflet-control-graphicscale-inner {
-	margin: 6px 16px;
-	padding-right: 20px;
+	margin-top		: $innerMarginTopAndBottom;
+	margin-bottom	: $innerMarginTopAndBottom;
+
+	margin-left	: $innerMarginLeftAndRight;
+	margin-right: $innerMarginLeftAndRight;
+
+	padding-right: $innerPaddingRight;
 
 	.units {
 		display: inline-block;
@@ -96,24 +107,25 @@ If options.type != 'both' the structure is:
 	}
 
 	.label {
-		width: 100px;
-	  	text-align: center;
-    	margin-bottom: 10px;
-		position: absolute;
-	  	opacity: 1;
-	  	@include leaflet-graphicscale-transition(opacity, .4s, linear);
+		width					: 100px;
+		text-align		: center;
+		margin-bottom	: $fontSize - 2px;
+		position			: absolute;
+		opacity				: 1;
+		font-size			: $fontSize;
+		@include leaflet-graphicscale-transition(opacity, .4s, linear);
 	}
 
 	//labels are on top
 	.leaflet-bottom &.labelPlacement-auto, &.labelPlacement-top {
-		margin-top: 20px;
+		margin-top: $labelMargin;
 		.label {
 			bottom: 0;
 		}
 	}
 
 	.leaflet-top &.labelPlacement-auto, &.labelPlacement-bottom {
-		margin-bottom: 20px;
+		margin-bottom: $labelMargin;
 	}
 
 	.divisionLabel {

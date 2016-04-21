@@ -18,7 +18,7 @@
 </head>
 
 <body>
-	<div id="map" style="width: 800px; height: 600px"></div>
+	<div id="map" style="width: 600px; height: 400px"></div>
 
 
 	
@@ -26,7 +26,7 @@
 	<script src="bower_components.js"></script>
 	<script src="../src/leaflet-double-scale.js"></script>
 	<script>
-		var map = L.map('map', {doubleScaleControl: true }).setView([51.505, -0.09], 13);
+		var map = L.map('map', {doubleScaleControl: true, maxZoom:12, minZoom:3 }).setView([51.505, -0.09], 6);
 		L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
 		map.on('click', function( mouseEvent ){

@@ -57,6 +57,7 @@
 
 			//number of units on the scale, by order of preference
 			this._possibleUnitsNum = [3, 5, 2, 4];
+
 			this._possibleUnitsNumLen = this._possibleUnitsNum.length;
 
 			//how to divide a full unit, by order of preference
@@ -64,18 +65,10 @@
 			this._possibleDivisionsLen = this._possibleDivisions.length;
         
 			this._possibleDivisionsSub = {
-					1:	{	num: 2,
-								division:0.5
-							},
-				0.5:	{	num: 5,
-								division: 0.1
-			        },
-				0.25: {	num: 5,
-								division: 0.05
-			        },
-				0.2:	{	num: 2,
-								division: 0.1
-			        }
+					1	:	{	num: 2,	division: 0.5		},
+				0.5	:	{	num: 5,	division: 0.1		},
+				0.25: {	num: 5,	division: 0.05	},
+				0.2:	{	num: 2,	division: 0.1		}
       };
 
 			this._scaleInner = this._buildScale();
@@ -230,7 +223,6 @@
 
 			var possibleUnits = this._getPossibleUnits( maxMeters, minUnitWidthPx, this._map.getSize().x );
 			var possibleScales = this._getPossibleScales(possibleUnits, maxUnitsWidthPx);
-
 			possibleScales.sort(function(scaleA, scaleB) {
 				return scaleB.score - scaleA.score;
 			});
@@ -278,7 +270,7 @@
 
 					//TODO: move score calculation  to a testable method
 					var totalWidthPxScore = 1-(maxUnitsWidthPx - totalWidthPx) / maxUnitsWidthPx;
-					totalWidthPxScore *= 3;
+					totalWidthPxScore *= 10;//3;
 
 					var score = unit.unitScore + numUnitsScore + totalWidthPxScore;
 

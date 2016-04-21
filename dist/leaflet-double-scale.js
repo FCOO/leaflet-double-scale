@@ -12,18 +12,22 @@
 
 	L.Control.DoubleScale = L.Control.extend({
 		options: {
-			type: 'both', //'metric', 'nautical' or 'both'
-			position: 'bottomleft',
-      updateWhenIdle: false,
-      minUnitWidth: 40,
-      maxUnitsWidth: 200,
-			fill: 'hollow',
+			type						: 'both', //'metric', 'nautical' or 'both'
+			position				: 'bottomleft',
+      updateWhenIdle	: false,
+      minUnitWidth		: 40,
+      maxUnitsWidth		: 200,
+			fill						: 'hollow',
 			backgroundColor	: 'white',
 			opacity					: 0.4,
-      showSubunits: false,
-      doubleLine: false,
-      labelPlacement: 'auto' 
-		
+      showSubunits		: false,
+      doubleLine			: false,
+      labelPlacement	: 'auto',
+			decimalSeparator: function(){
+				var n = 1.1;
+				n = n.toLocaleString();
+				return n.indexOf('.') > -1 ? '.' : n.indexOf(',') > -1 ? ',' : '.';
+			}()
 			
 		},
 
@@ -53,6 +57,7 @@
 
 			//number of units on the scale, by order of preference
 			this._possibleUnitsNum = [3, 5, 2, 4];
+
 			this._possibleUnitsNumLen = this._possibleUnitsNum.length;
 
 			//how to divide a full unit, by order of preference
@@ -60,18 +65,10 @@
 			this._possibleDivisionsLen = this._possibleDivisions.length;
         
 			this._possibleDivisionsSub = {
-					1:	{	num: 2,
-								division:0.5
-							},
-				0.5:	{	num: 5,
-								division: 0.1
-			        },
-				0.25: {	num: 5,
-								division: 0.05
-			        },
-				0.2:	{	num: 2,
-								division: 0.1
-			        }
+					1	:	{	num: 2,	division: 0.5		},
+				0.5	:	{	num: 5,	division: 0.1		},
+				0.25: {	num: 5,	division: 0.05	},
+				0.2:	{	num: 2,	division: 0.1		}
       };
 
 			this._scaleInner = this._buildScale();
@@ -226,7 +223,6 @@
 
 			var possibleUnits = this._getPossibleUnits( maxMeters, minUnitWidthPx, this._map.getSize().x );
 			var possibleScales = this._getPossibleScales(possibleUnits, maxUnitsWidthPx);
-
 			possibleScales.sort(function(scaleA, scaleB) {
 				return scaleB.score - scaleA.score;
 			});
@@ -274,7 +270,7 @@
 
 					//TODO: move score calculation  to a testable method
 					var totalWidthPxScore = 1-(maxUnitsWidthPx - totalWidthPx) / maxUnitsWidthPx;
-					totalWidthPxScore *= 3;
+					totalWidthPxScore *= 10;//3;
 
 					var score = unit.unitScore + numUnitsScore + totalWidthPxScore;
 
@@ -344,7 +340,8 @@
     },
 
     _renderPart: function(px, meters, num, divisions, divisionsLbls) {
-			var displayUnit = this._getDisplayUnit(meters);
+			var displayUnit = this._getDisplayUnit(meters),
+					thousandSeparator = this.options.decimalSeparator == '.' ? ',' : '.';
 			for (var i = 0; i < this._units.length; i++) {
 				var division = divisions[i];
 				if (i < num) {
@@ -363,6 +360,11 @@
 				if (i < num) {
 					var lblText = ( (i+1)*displayUnit.amount );
 					lblText = Math.round(lblText*100)/100; //Round to 2 two decimals
+				
+					//Format number to 1.000,12 or 1,000.12
+					var parts = lblText.toString().split(".");
+					parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousandSeparator);
+			    lblText = parts.join(this.options.decimalSeparator);
 				
 					if (i === num-1) {
 						lblText += displayUnit.unit;
@@ -386,12 +388,11 @@
 					amount: (displayUnit === 'km') ? meters / 1000 : meters
 				};
 			}
-			else {
+			else 
 				return {
 					unit	: 'nm',
 					amount: meters /1000
 				};
-			}
 		}
 	});
 

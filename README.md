@@ -60,7 +60,7 @@ Default: `0.4`
 
 ### maxUnitsWidth
 Max width of the scale
-Default: `240`
+Default: `200`
 
 ## Properties and methods
 	.outerElement //DOM-element that contains the scale. 
