@@ -57,6 +57,10 @@ Default: `1.0`
 Max width of the scale
 Default: `240`
 
+## Properties and methods
+	.outerElement //DOM-element that contains the scale. 
+
+	.onClick( func, context ) //Add click-event to the scale. Change style on mouse hover to border and less transparent 
 
 ## Copyright and License
 This plugin is licensed under the [MIT license](https://github.com/FCOO/leaflet-double-scale/LICENSE).

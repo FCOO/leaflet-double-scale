@@ -12,17 +12,19 @@
 
 	L.Control.DoubleScale = L.Control.extend({
 		options: {
-			type: 'metric', //'metric', 'nautical' or 'both'
+			type: 'both', //'metric', 'nautical' or 'both'
 			position: 'bottomleft',
       updateWhenIdle: false,
       minUnitWidth: 40,
-      maxUnitsWidth: 240,
+      maxUnitsWidth: 200,
 			fill: 'hollow',
-			backgroundColor	: 'transparent',
-			opacity					: 1,
+			backgroundColor	: 'white',
+			opacity					: 0.4,
       showSubunits: false,
       doubleLine: false,
       labelPlacement: 'auto' 
+		
+			
 		},
 
     onAdd: function (map) { 
@@ -43,6 +45,7 @@
 				metricOptions.type = 'metric';
         metricOptions.labelPlacement = 'bottom'; 
         metricOptions.dontAddBackground = true; 
+        metricOptions.clickable = false; 
 						
 				metricScale = L.control.doubleScale(metricOptions);
 				metricScale_scale = metricScale.onAdd(map);
@@ -73,6 +76,7 @@
 
 			this._scaleInner = this._buildScale();
 			this._scale = this._addScale(this._scaleInner);
+			this.outerElement = this._scale;
 			this._setStyle(this.options);
 
 			map.on(this.options.updateWhenIdle ? 'moveend' : 'move', this._update, this);
@@ -82,6 +86,7 @@
 				result =  L.DomUtil.create('div', 'leaflet-control-graphicscale-outer');
 				result.appendChild( this._scale );
 				result.appendChild( metricScale_scale );
+				this.outerElement = result;
 			}
 			else
 				result = this._scale;
@@ -99,6 +104,13 @@
     onRemove: function (map) {
 			map.off(this.options.updateWhenIdle ? 'moveend' : 'move', this._update, this);
     },
+
+		onClick: function( func, context ){
+			L.DomUtil.addClass( this.outerElement, 'leaflet-control-graphicscale-clickable' );
+			L.DomEvent.disableClickPropagation( this.outerElement );
+			L.DomEvent.addListener( this.outerElement, 'click', func, context );
+		},
+
 
     _addScale: function (scaleInner) {
 			var scale = L.DomUtil.create('div');

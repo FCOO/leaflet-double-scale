@@ -8,6 +8,26 @@
 
 
 ************************************************/
+/*
+If options.type = 'both' the structure is:
+<div class="leaflet-control-graphicscale-outer leaflet-control">
+	<div class="leaflet-control-graphicscale">
+		<div class="leaflet-control-graphicscale-inner">...</div>
+	</div>	
+	<div class="leaflet-control-graphicscale-background">..</div>
+	<div class="leaflet-control-graphicscale"> ... </div>	
+</div>
+
+
+If options.type != 'both' the structure is:
+<div class="leaflet-control-graphicscale leaflet-control [leaflet-control-graphicscale-clickable]">
+	<div class="leaflet-control-graphicscale-background"></div>
+	<div class="leaflet-control-graphicscale-inner">
+		<div class="leaflet-control-graphicscale-inner">...</div>	
+	</div>
+</div>
+
+*/
 .leaflet-control-graphicscale-background {
   position: absolute;
   top: 0;
@@ -17,6 +37,14 @@
   height: 100%;
   opacity: 1;
   background-color: transparent; }
+
+.leaflet-control-graphicscale-clickable {
+  border: 1px solid transparent;
+  cursor: pointer; }
+  .leaflet-control-graphicscale-clickable:hover {
+    border: 1px solid black;
+    opacity: 0.95;
+    background-color: rgba(255, 255, 255, 0.6); }
 
 .leaflet-control-graphicscale-outer .leaflet-control-graphicscale {
   position: relative;

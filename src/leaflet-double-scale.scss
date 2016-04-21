@@ -16,29 +16,63 @@
     transition: $transition-property $transition-time $method;
 }
 
-$lineHeight: 6px;
-$borderWidth: 1px;
-$color: #000;
-$fillLineHeight: 2px;
+$lineHeight				: 6px;
+$borderWidth			: 1px;
+$color						: #000;
+$fillLineHeight		: 2px;
 $fillHollowPadding: 1px;
-$lineHeightPx: 12*1.5px; //From .leaflet-container { font: 12px/1.5; ... }
+$lineHeightPx			: 12*1.5px; //From .leaflet-container { font: 12px/1.5; ... }
+
+
+/*
+If options.type = 'both' the structure is:
+<div class="leaflet-control-graphicscale-outer leaflet-control">
+	<div class="leaflet-control-graphicscale">
+		<div class="leaflet-control-graphicscale-inner">...</div>
+	</div>	
+	<div class="leaflet-control-graphicscale-background">..</div>
+	<div class="leaflet-control-graphicscale"> ... </div>	
+</div>
+
+
+If options.type != 'both' the structure is:
+<div class="leaflet-control-graphicscale leaflet-control [leaflet-control-graphicscale-clickable]">
+	<div class="leaflet-control-graphicscale-background"></div>
+	<div class="leaflet-control-graphicscale-inner">
+		<div class="leaflet-control-graphicscale-inner">...</div>	
+	</div>
+</div>
+
+*/
+
 
 .leaflet-control-graphicscale-background {
- position	: absolute;
- top			: 0; 
- left			: 0;
- z-index	: 0;
- width		: 100%;
- height		: 100%;
- opacity	: 1;
- background-color: transparent;
- }
+	position: absolute;
+	top			: 0; 
+	left		: 0;
+	z-index	: 0;
+	width		: 100%;
+	height	: 100%;
+	opacity	: 1;
+	background-color: transparent;
+}
 
+
+.leaflet-control-graphicscale-clickable { 
+	border: 1px solid transparent;
+	cursor: pointer;
+	&:hover {
+		border: 1px solid black;
+		opacity	: 0.95;
+		background-color: rgba(255, 255, 255, 0.6);
+	}
+}
 
 .leaflet-control-graphicscale-outer {
+
 	.leaflet-control-graphicscale { 
 		position: relative;
-		z-index: 1;
+		z-index	: 1;
 	}
 	//Setting the margin-top/bottom when there are two scales inside a <div class="leaflet-control-graphicscale-outer">
 	.leaflet-control-graphicscale:first-child .leaflet-control-graphicscale-inner { 
@@ -47,7 +81,7 @@ $lineHeightPx: 12*1.5px; //From .leaflet-container { font: 12px/1.5; ... }
 	.leaflet-control-graphicscale:last-child	.leaflet-control-graphicscale-inner { 
 		margin-top: -($lineHeightPx - $lineHeight - 2*$borderWidth) - $borderWidth;  
 	}
-}
+} //end of .leaflet-control-graphicscale-outer
 
 .leaflet-control-graphicscale-inner {
 	margin: 6px 16px;
@@ -136,7 +170,7 @@ $lineHeightPx: 12*1.5px; //From .leaflet-container { font: 12px/1.5; ... }
 	&.double {
 		.division {
 			.line2 {
-				height: $lineHeight;
+				height			: $lineHeight;
 				border-width: 0 $borderWidth $borderWidth 0;
 			}
 		}
@@ -150,7 +184,7 @@ $lineHeightPx: 12*1.5px; //From .leaflet-container { font: 12px/1.5; ... }
 		}
 
 		.label {
-	    	margin-bottom: 14px;
+			margin-bottom: 14px;
 		}
 	}
 
@@ -158,11 +192,11 @@ $lineHeightPx: 12*1.5px; //From .leaflet-container { font: 12px/1.5; ... }
 	&.filled {
 		.fill {
 			background-color: $color;
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
+			position				: absolute;
+			top							: 0;
+			left						: 0;
+			right						: 0;
+			bottom					: 0;
 		}
 
 	}
@@ -206,6 +240,6 @@ $lineHeightPx: 12*1.5px; //From .leaflet-container { font: 12px/1.5; ... }
 			opacity: 0;
 		}
 	}
-}
+} //end of .leaflet-control-graphicscale-inner
 
 

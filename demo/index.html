@@ -29,16 +29,14 @@
 		var map = L.map('map', {doubleScaleControl: true }).setView([51.505, -0.09], 13);
 		L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+		map.on('click', function( mouseEvent ){
+			var popup = L.popup()
+				.setLatLng(mouseEvent.latlng)
+				.setContent('<p>Hello world!<br />This is a nice popup.</p>')
+				.openOn(map);
+		});
+		map.doubleScaleControl.onClick(function(){console.log('click on scale')});
 
-/*
-		L.control.doubleScale( {
-			type						: 'both',
-			position				: 'bottomleft', 
-			backgroundColor	:	'white',
-			opacity					: 0.4,
-			maxUnitsWidth		: 200, 
-		}).addTo(map);
-*/
 	</script>
 </body>
 </html>
