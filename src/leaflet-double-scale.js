@@ -22,12 +22,7 @@
             opacity         : 0.4,
             showSubunits    : false,
             doubleLine      : false,
-            labelPlacement  : 'auto',
-            decimalSeparator: function(){
-                var n = 1.1;
-                n = n.toLocaleString();
-                return n.indexOf('.') > -1 ? '.' : n.indexOf(',') > -1 ? ',' : '.';
-            }()
+            labelPlacement  : 'auto'
         },
 
     onAdd: function (map) { 
@@ -339,9 +334,9 @@
         },
 
         _renderPart: function(px, meters, num, divisions, divisionsLbls) {
-            var displayUnit = this._getDisplayUnit(meters),
-                    thousandSeparator = this.options.decimalSeparator == '.' ? ',' : '.';
-            for (var i = 0; i < this._units.length; i++) {
+            var displayUnit = this._getDisplayUnit(meters);
+
+            for (var i=0; i < this._units.length; i++) {
                 var division = divisions[i];
                 if (i < num) {
                     division.style.width = px + 'px';
@@ -357,14 +352,13 @@
                 var lblClassNames = ['label', 'divisionLabel'];
                 
                 if (i < num) {
-                    var lblText = ( (i+1)*displayUnit.amount );
-                    lblText = Math.round(lblText*100)/100; //Round to 2 two decimals
-                
-                    //Format number to 1.000,12 or 1,000.12
-                    var parts = lblText.toString().split(".");
-                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousandSeparator);
-                    lblText = parts.join(this.options.decimalSeparator);
-                
+                    var lblText = window.numeral( (i+1)*displayUnit.amount ).format('0,0.00');
+
+                    //Remove trailing zeros and decimal delimiters
+                    lblText = lblText.replace(/[0]*$/g, "");
+                    if (lblText[ lblText.length-1 ] === window.numeral.localeData().delimiters.decimal)
+                        lblText = lblText.slice(0,-1);
+            
                     if (i === num-1) {
                         lblText += displayUnit.unit;
                         lblClassNames.push('labelLast');

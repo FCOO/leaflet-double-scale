@@ -46,11 +46,6 @@ Default: `metric`
 ### position
 leaflet.Control [options.position](http://leafletjs.com/reference.html#control-options)
 
-### decimalSeparator
-`"."` or `","`
-Default: System default
-Thousand-separator will be set automatic (`1.000,12` or `1,000.12`) 
-
 ### backgroundColor
 Default: `white`
 
@@ -79,12 +74,4 @@ Niels Holt nho@fcoo.dk
 
 ## Credits and acknowledgements
 Erik Escoffier <https://github.com/nerik> 
-
-## Known bugs
-
-## Troubleshooting
-
-## Changelog
-
-
 

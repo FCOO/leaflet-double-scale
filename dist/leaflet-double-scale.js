@@ -1,415 +1,408 @@
 /****************************************************************************
-	leaflet-double-scale.js, 
+    leaflet-double-scale.js, 
 
-	(c) 2015, FCOO
+    (c) 2015, FCOO
 
-	https://github.com/FCOO/leaflet-double-scale
-	https://github.com/FCOO
+    https://github.com/FCOO/leaflet-double-scale
+    https://github.com/FCOO
 
 ****************************************************************************/
-;(function (L, window, document, undefined) {
-	"use strict";
+(function (L/*, window, document, undefined*/) {
+    "use strict";
 
-	L.Control.DoubleScale = L.Control.extend({
-		options: {
-			type						: 'both', //'metric', 'nautical' or 'both'
-			position				: 'bottomleft',
-      updateWhenIdle	: false,
-      minUnitWidth		: 40,
-      maxUnitsWidth		: 200,
-			fill						: 'hollow',
-			backgroundColor	: 'white',
-			opacity					: 0.4,
-      showSubunits		: false,
-      doubleLine			: false,
-      labelPlacement	: 'auto',
-			decimalSeparator: function(){
-				var n = 1.1;
-				n = n.toLocaleString();
-				return n.indexOf('.') > -1 ? '.' : n.indexOf(',') > -1 ? ',' : '.';
-			}()
-			
-		},
+    L.Control.DoubleScale = L.Control.extend({
+        options: {
+            type            : 'both', //'metric', 'nautical' or 'both'
+            position        : 'bottomleft',
+            updateWhenIdle  : false,
+            minUnitWidth    : 40,
+            maxUnitsWidth   : 200,
+            fill            : 'hollow',
+            backgroundColor : 'white',
+            opacity         : 0.4,
+            showSubunits    : false,
+            doubleLine      : false,
+            labelPlacement  : 'auto'
+        },
 
     onAdd: function (map) { 
-			var isBoth = (this.options.type == 'both'),
-					metricScale,
-					metricScale_scale,
-					result;
+            var isBoth = (this.options.type == 'both'),
+                    metricScale,
+                    metricScale_scale,
+                    result;
 
-			this._map = map;
-				
-			if (isBoth){
-				this.options.type = 'nautical';
-				this.options.labelPlacement = 'top';
-				this.options.doubleLine = false;
-					
-				//Create extra metric scale
-				var metricOptions = L.extend({}, this.options );
-				metricOptions.type = 'metric';
-        metricOptions.labelPlacement = 'bottom'; 
-        metricOptions.dontAddBackground = true; 
-        metricOptions.clickable = false; 
-						
-				metricScale = L.control.doubleScale(metricOptions);
-				metricScale_scale = metricScale.onAdd(map);
-			}
+            this._map = map;
+                
+            if (isBoth){
+                this.options.type = 'nautical';
+                this.options.labelPlacement = 'top';
+                this.options.doubleLine = false;
+                    
+                //Create extra metric scale
+                var metricOptions = L.extend({}, this.options );
+                metricOptions.type = 'metric';
+                metricOptions.labelPlacement = 'bottom'; 
+                metricOptions.dontAddBackground = true; 
+                metricOptions.clickable = false; 
+                        
+                metricScale = L.control.doubleScale(metricOptions);
+                metricScale_scale = metricScale.onAdd(map);
+            }
 
-			//number of units on the scale, by order of preference
-			this._possibleUnitsNum = [3, 5, 2, 4];
+            //number of units on the scale, by order of preference
+            this._possibleUnitsNum = [3, 5, 2, 4];
 
-			this._possibleUnitsNumLen = this._possibleUnitsNum.length;
+            this._possibleUnitsNumLen = this._possibleUnitsNum.length;
 
-			//how to divide a full unit, by order of preference
-			this._possibleDivisions = [1, 0.5, 0.25, 0.2];
-			this._possibleDivisionsLen = this._possibleDivisions.length;
+            //how to divide a full unit, by order of preference
+            this._possibleDivisions = [1, 0.5, 0.25, 0.2];
+            this._possibleDivisionsLen = this._possibleDivisions.length;
         
-			this._possibleDivisionsSub = {
-					1	:	{	num: 2,	division: 0.5		},
-				0.5	:	{	num: 5,	division: 0.1		},
-				0.25: {	num: 5,	division: 0.05	},
-				0.2:	{	num: 2,	division: 0.1		}
+            this._possibleDivisionsSub = {
+                1   : { num: 2, division: 0.5  },
+                0.5 : { num: 5, division: 0.1  },
+                0.25: { num: 5, division: 0.05 },
+                0.2 : { num: 2, division: 0.1  }
       };
 
-			this._scaleInner = this._buildScale();
-			this._scale = this._addScale(this._scaleInner);
-			this.outerElement = this._scale;
-			this._setStyle(this.options);
+            this._scaleInner = this._buildScale();
+            this._scale = this._addScale(this._scaleInner);
+            this.outerElement = this._scale;
+            this._setStyle(this.options);
 
-			map.on(this.options.updateWhenIdle ? 'moveend' : 'move', this._update, this);
-			map.whenReady(this._update, this);
+            map.on(this.options.updateWhenIdle ? 'moveend' : 'move', this._update, this);
+            map.whenReady(this._update, this);
 
-			if (isBoth){
-				result =  L.DomUtil.create('div', 'leaflet-control-graphicscale-outer');
-				result.appendChild( this._scale );
-				result.appendChild( metricScale_scale );
-				this.outerElement = result;
-			}
-			else
-				result = this._scale;
+            if (isBoth){
+                result =  L.DomUtil.create('div', 'leaflet-control-graphicscale-outer');
+                result.appendChild( this._scale );
+                result.appendChild( metricScale_scale );
+                this.outerElement = result;
+            }
+            else
+                result = this._scale;
 
-			if (!this.options.dontAddBackground){
-				var backgroundDiv = L.DomUtil.create('div', 'leaflet-control-graphicscale-background');
-				L.DomUtil.setOpacity(backgroundDiv, this.options.opacity);
-				backgroundDiv.style.backgroundColor = this.options.backgroundColor;
-				result.insertBefore( backgroundDiv, result.lastChild );
-			}
+            if (!this.options.dontAddBackground){
+                var backgroundDiv = L.DomUtil.create('div', 'leaflet-control-graphicscale-background');
+                L.DomUtil.setOpacity(backgroundDiv, this.options.opacity);
+                backgroundDiv.style.backgroundColor = this.options.backgroundColor;
+                result.insertBefore( backgroundDiv, result.lastChild );
+            }
 
-			return result;
-		},
+            return result;
+        },
 
-    onRemove: function (map) {
-			map.off(this.options.updateWhenIdle ? 'moveend' : 'move', this._update, this);
-    },
+        onRemove: function (map) {
+            map.off(this.options.updateWhenIdle ? 'moveend' : 'move', this._update, this);
+        },
 
-		onClick: function( func, context ){
-			L.DomUtil.addClass( this.outerElement, 'leaflet-control-graphicscale-clickable' );
-			L.DomEvent.disableClickPropagation( this.outerElement );
-			L.DomEvent.addListener( this.outerElement, 'click', func, context );
-		},
-
-
-    _addScale: function (scaleInner) {
-			var scale = L.DomUtil.create('div');
-			scale.className = 'leaflet-control-graphicscale';
-			scale.appendChild( scaleInner );
-			return scale;
-    },
-
-    _setStyle: function (options) {
-			var classNames = ['leaflet-control-graphicscale-inner'];
-			if (options.fill && options.fill !== 'nofill') {
-				classNames.push('filled');
-				classNames.push('filled-'+options.fill);
-			}
-			if (options.showSubunits) {
-				classNames.push('showsubunits');
-			}
-
-			if (options.doubleLine) {
-				classNames.push('double');
-			}
-
-			classNames.push('labelPlacement-'+options.labelPlacement);
-
-			this._scaleInner.className = classNames.join(' ');
-		},
-
-		_buildScale: function() {
-			var root = document.createElement('div');
-			root.className = 'leaflet-control-graphicscale-inner';
-
-			var subunits = L.DomUtil.create('div', 'subunits', root);
-			var units = L.DomUtil.create('div', 'units', root);
-
-			this._units = [];
-			this._unitsLbls = [];
-			this._subunits = [];
-
-			for (var i = 0; i < 5; i++) {
-				var unit = this._buildDivision( i%2 === 0 );
-				units.appendChild(unit);
-				this._units.push(unit);
-
-				var unitLbl = this._buildDivisionLbl();
-				unit.appendChild(unitLbl);
-				this._unitsLbls.push(unitLbl);
-
-				var subunit = this._buildDivision( i%2 === 1 );
-				subunits.appendChild(subunit);
-				this._subunits.unshift(subunit);
-			}
-
-			this._zeroLbl = L.DomUtil.create('div', 'label zeroLabel');
-			this._zeroLbl.innerHTML = '0';
-			this._units[0].appendChild(this._zeroLbl);
-
-			this._subunitsLbl = L.DomUtil.create('div', 'label subunitsLabel');
-			this._subunitsLbl.innerHTML = '?';
-			this._subunits[4].appendChild(this._subunitsLbl);
-
-			return root;
-    },
-
-    _buildDivision: function(fill) {
-			var item = L.DomUtil.create('div', 'division');
-			var l1 = L.DomUtil.create('div', 'line');
-			item.appendChild( l1 );
-
-			var l2 = L.DomUtil.create('div', 'line2');
-			item.appendChild( l2 );
-
-			if (fill)  l1.appendChild( L.DomUtil.create('div', 'fill') );
-			if (!fill) l2.appendChild( L.DomUtil.create('div', 'fill') );
-
-			return item;
-    },
-
-    _buildDivisionLbl: function() {
-			var itemLbl = L.DomUtil.create('div', 'label divisionLabel');
-			return itemLbl;
-		},
-
-		_update: function () {
-			var bounds = this._map.getBounds(),
-					centerLat = bounds.getCenter().lat,
-					//length of an half world arc at current lat
-					halfWorldMeters = 6378137 * Math.PI * Math.cos(centerLat * Math.PI / 180),
-					//length of this arc from map left to map right
-					dist = halfWorldMeters * (bounds.getNorthEast().lng - bounds.getSouthWest().lng) / 180,
-					size = this._map.getSize();
-
-			if (this.options.type == 'nautical'){
-				dist = dist/1.852;
-			}
-
-			if (size.x > 0) {
-				this._updateScale(dist, this.options);
-			}
-		},
-
-    _updateScale: function(maxMeters, options) {
-			var scale = this._getBestScale(maxMeters, options.minUnitWidth, options.maxUnitsWidth);
-			// this._render(scale.unit.unitPx, scale.numUnits, scale.unit.unitMeters);
-			this._render(scale);
-    },
-
-    _getBestScale: function(maxMeters, minUnitWidthPx, maxUnitsWidthPx) {
-			//favor full units (not 500, 25, etc)
-			//favor multiples in this order: [3, 5, 2, 4]
-			//units should have a minUnitWidth
-			//full scale width should be below maxUnitsWidth
-			//full scale width should be above minUnitsWidth ?
-
-			var possibleUnits = this._getPossibleUnits( maxMeters, minUnitWidthPx, this._map.getSize().x );
-			var possibleScales = this._getPossibleScales(possibleUnits, maxUnitsWidthPx);
-			possibleScales.sort(function(scaleA, scaleB) {
-				return scaleB.score - scaleA.score;
-			});
-
-			var scale = possibleScales[0];
-			scale.subunits = this._getSubunits(scale);
-
-			return scale;
-    },
-
-    _getSubunits: function(scale) {
-			var subdivision = this._possibleDivisionsSub[scale.unit.unitDivision];
-			var subunit = {};
-			subunit.subunitDivision = subdivision.division;
-			subunit.subunitMeters = subdivision.division * (scale.unit.unitMeters / scale.unit.unitDivision);
-			subunit.subunitPx = subdivision.division * (scale.unit.unitPx / scale.unit.unitDivision);
-
-			var subunits = {
-				subunit: subunit,
-				numSubunits: subdivision.num,
-				total: subdivision.num * subunit.subunitMeters
-			};
-
-			return subunits;
-    },
-
-    _getPossibleScales: function(possibleUnits, maxUnitsWidthPx) {
-			var scales = [];
-			var minTotalWidthPx = Number.POSITIVE_INFINITY;
-			var fallbackScale;
-
-			for (var i = 0; i < this._possibleUnitsNumLen; i++) {
-				var numUnits = this._possibleUnitsNum[i];
-				var numUnitsScore = (this._possibleUnitsNumLen-i)*0.5;
-
-				for (var j = 0; j < possibleUnits.length; j++) {
-					var unit = possibleUnits[j];
-					var totalWidthPx = unit.unitPx * numUnits;
-					var scale = {
-								unit: unit,
-								totalWidthPx: totalWidthPx,
-								numUnits: numUnits,
-								score: 0
-							};
-
-					//TODO: move score calculation  to a testable method
-					var totalWidthPxScore = 1-(maxUnitsWidthPx - totalWidthPx) / maxUnitsWidthPx;
-					totalWidthPxScore *= 10;//3;
-
-					var score = unit.unitScore + numUnitsScore + totalWidthPxScore;
-
-					//penalty when unit / numUnits association looks weird
-					if (
-						unit.unitDivision === 0.25 && numUnits === 3 ||
-						unit.unitDivision === 0.5 && numUnits === 3 ||
-						unit.unitDivision === 0.25 && numUnits === 5
-					) {
-						score -= 2;
-					}
-
-					scale.score = score;
-
-					if (totalWidthPx < maxUnitsWidthPx) {
-						scales.push(scale);
-					}
-
-					//keep a fallback scale in case totalWidthPx < maxUnitsWidthPx condition is never met
-					//(happens at very high zoom levels because we dont handle submeter units yet)
-					if (totalWidthPx<minTotalWidthPx) {
-						minTotalWidthPx = totalWidthPx;
-						fallbackScale = scale;
-					}
-				}
-			}
-
-			if (!scales.length) 
-				scales.push(fallbackScale);
-			return scales;
-		},
-
-		/**
-		Returns a list of possible units whose widthPx would be < minUnitWidthPx
-		**/
-		_getPossibleUnits: function(maxMeters, minUnitWidthPx, mapWidthPx) {
-			var exp = (Math.floor(maxMeters) + '').length;
-
-			var unitMetersPow;
-			var units = [];
-
-			for (var i = exp; i > 0; i--) {
-				unitMetersPow = Math.pow(10, i);
-				for (var j = 0; j < this._possibleDivisionsLen; j++) {
-					var unitMeters = unitMetersPow * this._possibleDivisions[j];
-					var unitPx = mapWidthPx * (unitMeters/maxMeters);
-					if (unitPx < minUnitWidthPx) {
-						return units;
-					}
-					units.push({
-					unitMeters: unitMeters,
-					unitPx: unitPx,
-					unitDivision: this._possibleDivisions[j],
-					unitScore: this._possibleDivisionsLen-j });
-				}
-			}
-
-			return units;
-    },
-
-    _render: function(scale) {
-			this._renderPart(scale.unit.unitPx, scale.unit.unitMeters, scale.numUnits, this._units, this._unitsLbls);
-			this._renderPart(scale.subunits.subunit.subunitPx, scale.subunits.subunit.subunitMeters, scale.subunits.numSubunits, this._subunits);
-
-			var subunitsDisplayUnit = this._getDisplayUnit(scale.subunits.total);
-			this._subunitsLbl.innerHTML = ''+ subunitsDisplayUnit.amount + subunitsDisplayUnit.unit;
-    },
-
-    _renderPart: function(px, meters, num, divisions, divisionsLbls) {
-			var displayUnit = this._getDisplayUnit(meters),
-					thousandSeparator = this.options.decimalSeparator == '.' ? ',' : '.';
-			for (var i = 0; i < this._units.length; i++) {
-				var division = divisions[i];
-				if (i < num) {
-					division.style.width = px + 'px';
-					division.className = 'division';
-				} else {
-					division.style.width = 0;
-					division.className = 'division hidden';
-				}
-
-				if (!divisionsLbls) continue;
-
-				var lbl = divisionsLbls[i];
-				var lblClassNames = ['label', 'divisionLabel'];
-				
-				if (i < num) {
-					var lblText = ( (i+1)*displayUnit.amount );
-					lblText = Math.round(lblText*100)/100; //Round to 2 two decimals
-				
-					//Format number to 1.000,12 or 1,000.12
-					var parts = lblText.toString().split(".");
-					parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousandSeparator);
-			    lblText = parts.join(this.options.decimalSeparator);
-				
-					if (i === num-1) {
-						lblText += displayUnit.unit;
-						lblClassNames.push('labelLast');
-					} 
-					else {
-						lblClassNames.push('labelSub');
-					}
-					lbl.innerHTML = lblText;
-				}
-				
-				lbl.className = lblClassNames.join(' ');
-			}
-    },
-
-		_getDisplayUnit: function(meters) {
-			if (this.options.type == 'metric'){
-				var displayUnit = (meters<1000) ? 'm' : 'km';
-				return {
-					unit: displayUnit,
-					amount: (displayUnit === 'km') ? meters / 1000 : meters
-				};
-			}
-			else 
-				return {
-					unit	: 'nm',
-					amount: meters /1000
-				};
-		}
-	});
-
-	L.Map.mergeOptions({
-		doubleScaleControl: false
-	});
+        onClick: function( func, context ){
+            L.DomUtil.addClass( this.outerElement, 'leaflet-control-graphicscale-clickable' );
+            L.DomEvent.disableClickPropagation( this.outerElement );
+            L.DomEvent.addListener( this.outerElement, 'click', func, context );
+        },
 
 
-	L.Map.addInitHook(function () {
-		if (this.options.doubleScaleControl) {
-			this.doubleScaleControl = new L.Control.DoubleScale();
-			this.addControl(this.doubleScaleControl);
-		}
-	});
+        _addScale: function (scaleInner) {
+            var scale = L.DomUtil.create('div');
+            scale.className = 'leaflet-control-graphicscale';
+            scale.appendChild( scaleInner );
+            return scale;
+        },
 
-	L.control.doubleScale = function (options) {
+        _setStyle: function (options) {
+            var classNames = ['leaflet-control-graphicscale-inner'];
+            if (options.fill && options.fill !== 'nofill') {
+                classNames.push('filled');
+                classNames.push('filled-'+options.fill);
+            }
+            if (options.showSubunits) {
+                classNames.push('showsubunits');
+            }
+
+            if (options.doubleLine) {
+                classNames.push('double');
+            }
+
+            classNames.push('labelPlacement-'+options.labelPlacement);
+
+            this._scaleInner.className = classNames.join(' ');
+        },
+
+        _buildScale: function() {
+            var root = document.createElement('div');
+            root.className = 'leaflet-control-graphicscale-inner';
+
+            var subunits = L.DomUtil.create('div', 'subunits', root);
+            var units = L.DomUtil.create('div', 'units', root);
+
+            this._units = [];
+            this._unitsLbls = [];
+            this._subunits = [];
+
+            for (var i = 0; i < 5; i++) {
+                var unit = this._buildDivision( i%2 === 0 );
+                units.appendChild(unit);
+                this._units.push(unit);
+
+                var unitLbl = this._buildDivisionLbl();
+                unit.appendChild(unitLbl);
+                this._unitsLbls.push(unitLbl);
+
+                var subunit = this._buildDivision( i%2 === 1 );
+                subunits.appendChild(subunit);
+                this._subunits.unshift(subunit);
+            }
+
+            this._zeroLbl = L.DomUtil.create('div', 'label zeroLabel');
+            this._zeroLbl.innerHTML = '0';
+            this._units[0].appendChild(this._zeroLbl);
+
+            this._subunitsLbl = L.DomUtil.create('div', 'label subunitsLabel');
+            this._subunitsLbl.innerHTML = '?';
+            this._subunits[4].appendChild(this._subunitsLbl);
+
+            return root;
+        },
+
+        _buildDivision: function(fill) {
+            var item = L.DomUtil.create('div', 'division');
+            var l1 = L.DomUtil.create('div', 'line');
+            item.appendChild( l1 );
+
+            var l2 = L.DomUtil.create('div', 'line2');
+            item.appendChild( l2 );
+
+            if (fill)  l1.appendChild( L.DomUtil.create('div', 'fill') );
+            if (!fill) l2.appendChild( L.DomUtil.create('div', 'fill') );
+
+            return item;
+        },
+
+        _buildDivisionLbl: function() {
+            var itemLbl = L.DomUtil.create('div', 'label divisionLabel');
+            return itemLbl;
+        },
+
+        _update: function () {
+            var bounds = this._map.getBounds(),
+                    centerLat = bounds.getCenter().lat,
+                    //length of an half world arc at current lat
+                    halfWorldMeters = 6378137 * Math.PI * Math.cos(centerLat * Math.PI / 180),
+                    //length of this arc from map left to map right
+                    dist = halfWorldMeters * (bounds.getNorthEast().lng - bounds.getSouthWest().lng) / 180,
+                    size = this._map.getSize();
+
+            if (this.options.type == 'nautical'){
+                dist = dist/1.852;
+            }
+
+            if (size.x > 0) {
+                this._updateScale(dist, this.options);
+            }
+        },
+
+        _updateScale: function(maxMeters, options) {
+            var scale = this._getBestScale(maxMeters, options.minUnitWidth, options.maxUnitsWidth);
+            // this._render(scale.unit.unitPx, scale.numUnits, scale.unit.unitMeters);
+            this._render(scale);
+        },
+
+        _getBestScale: function(maxMeters, minUnitWidthPx, maxUnitsWidthPx) {
+            //favor full units (not 500, 25, etc)
+            //favor multiples in this order: [3, 5, 2, 4]
+            //units should have a minUnitWidth
+            //full scale width should be below maxUnitsWidth
+            //full scale width should be above minUnitsWidth ?
+
+            var possibleUnits = this._getPossibleUnits( maxMeters, minUnitWidthPx, this._map.getSize().x );
+            var possibleScales = this._getPossibleScales(possibleUnits, maxUnitsWidthPx);
+            possibleScales.sort(function(scaleA, scaleB) {
+                return scaleB.score - scaleA.score;
+            });
+
+            var scale = possibleScales[0];
+            scale.subunits = this._getSubunits(scale);
+
+            return scale;
+        },
+
+        _getSubunits: function(scale) {
+            var subdivision = this._possibleDivisionsSub[scale.unit.unitDivision];
+            var subunit = {};
+            subunit.subunitDivision = subdivision.division;
+            subunit.subunitMeters = subdivision.division * (scale.unit.unitMeters / scale.unit.unitDivision);
+            subunit.subunitPx = subdivision.division * (scale.unit.unitPx / scale.unit.unitDivision);
+
+            var subunits = {
+                subunit: subunit,
+                numSubunits: subdivision.num,
+                total: subdivision.num * subunit.subunitMeters
+            };
+
+            return subunits;
+        },
+
+        _getPossibleScales: function(possibleUnits, maxUnitsWidthPx) {
+            var scales = [];
+            var minTotalWidthPx = Number.POSITIVE_INFINITY;
+            var fallbackScale;
+
+            for (var i = 0; i < this._possibleUnitsNumLen; i++) {
+                var numUnits = this._possibleUnitsNum[i];
+                var numUnitsScore = (this._possibleUnitsNumLen-i)*0.5;
+
+                for (var j = 0; j < possibleUnits.length; j++) {
+                    var unit = possibleUnits[j];
+                    var totalWidthPx = unit.unitPx * numUnits;
+                    var scale = {
+                            unit: unit,
+                            totalWidthPx: totalWidthPx,
+                            numUnits: numUnits,
+                            score: 0
+                        };
+
+                    //TODO: move score calculation  to a testable method
+                    var totalWidthPxScore = 1-(maxUnitsWidthPx - totalWidthPx) / maxUnitsWidthPx;
+                    totalWidthPxScore *= 10;//3;
+
+                    var score = unit.unitScore + numUnitsScore + totalWidthPxScore;
+
+                    //penalty when unit / numUnits association looks weird
+                    if (
+                        unit.unitDivision === 0.25 && numUnits === 3 ||
+                        unit.unitDivision === 0.5 && numUnits === 3 ||
+                        unit.unitDivision === 0.25 && numUnits === 5
+                    ) {
+                        score -= 2;
+                    }
+
+                    scale.score = score;
+
+                    if (totalWidthPx < maxUnitsWidthPx) {
+                        scales.push(scale);
+                    }
+
+                    //keep a fallback scale in case totalWidthPx < maxUnitsWidthPx condition is never met
+                    //(happens at very high zoom levels because we dont handle submeter units yet)
+                    if (totalWidthPx<minTotalWidthPx) {
+                        minTotalWidthPx = totalWidthPx;
+                        fallbackScale = scale;
+                    }
+                }
+            }
+
+            if (!scales.length) 
+                scales.push(fallbackScale);
+            return scales;
+        },
+
+        /**
+        Returns a list of possible units whose widthPx would be < minUnitWidthPx
+        **/
+        _getPossibleUnits: function(maxMeters, minUnitWidthPx, mapWidthPx) {
+            var exp = (Math.floor(maxMeters) + '').length;
+
+            var unitMetersPow;
+            var units = [];
+
+            for (var i = exp; i > 0; i--) {
+                unitMetersPow = Math.pow(10, i);
+                for (var j = 0; j < this._possibleDivisionsLen; j++) {
+                    var unitMeters = unitMetersPow * this._possibleDivisions[j];
+                    var unitPx = mapWidthPx * (unitMeters/maxMeters);
+                    if (unitPx < minUnitWidthPx) {
+                        return units;
+                    }
+                    units.push({
+                    unitMeters: unitMeters,
+                    unitPx: unitPx,
+                    unitDivision: this._possibleDivisions[j],
+                    unitScore: this._possibleDivisionsLen-j });
+                }
+            }
+
+            return units;
+        },
+
+        _render: function(scale) {
+            this._renderPart(scale.unit.unitPx, scale.unit.unitMeters, scale.numUnits, this._units, this._unitsLbls);
+            this._renderPart(scale.subunits.subunit.subunitPx, scale.subunits.subunit.subunitMeters, scale.subunits.numSubunits, this._subunits);
+
+            var subunitsDisplayUnit = this._getDisplayUnit(scale.subunits.total);
+            this._subunitsLbl.innerHTML = ''+ subunitsDisplayUnit.amount + subunitsDisplayUnit.unit;
+        },
+
+        _renderPart: function(px, meters, num, divisions, divisionsLbls) {
+            var displayUnit = this._getDisplayUnit(meters);
+
+            for (var i=0; i < this._units.length; i++) {
+                var division = divisions[i];
+                if (i < num) {
+                    division.style.width = px + 'px';
+                    division.className = 'division';
+                } else {
+                    division.style.width = 0;
+                    division.className = 'division hidden';
+                }
+
+                if (!divisionsLbls) continue;
+
+                var lbl = divisionsLbls[i];
+                var lblClassNames = ['label', 'divisionLabel'];
+                
+                if (i < num) {
+                    var lblText = window.numeral( (i+1)*displayUnit.amount ).format('0,0.00');
+
+                    //Remove trailing zeros and decimal delimiters
+                    lblText = lblText.replace(/[0]*$/g, "");
+                    if (lblText[ lblText.length-1 ] === window.numeral.localeData().delimiters.decimal)
+                        lblText = lblText.slice(0,-1);
+            
+                    if (i === num-1) {
+                        lblText += displayUnit.unit;
+                        lblClassNames.push('labelLast');
+                    } 
+                    else {
+                        lblClassNames.push('labelSub');
+                    }
+                    lbl.innerHTML = lblText;
+                }
+                
+                lbl.className = lblClassNames.join(' ');
+            }
+        },
+
+        _getDisplayUnit: function(meters) {
+            if (this.options.type == 'metric'){
+                var displayUnit = (meters<1000) ? 'm' : 'km';
+                return {
+                    unit: displayUnit,
+                    amount: (displayUnit === 'km') ? meters / 1000 : meters
+                };
+            }
+            else 
+                return {
+                    unit  : 'nm',
+                    amount: meters /1000
+                };
+        }
+    });
+
+    L.Map.mergeOptions({
+        doubleScaleControl: false
+    });
+
+
+    L.Map.addInitHook(function () {
+        if (this.options.doubleScaleControl) {
+            this.doubleScaleControl = new L.Control.DoubleScale();
+            this.addControl(this.doubleScaleControl);
+        }
+    });
+
+    L.control.doubleScale = function (options) {
     return new L.Control.DoubleScale(options);
-	};
+    };
 
 }(L, this, document));
