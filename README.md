@@ -19,8 +19,6 @@ http://FCOO.github.io/leaflet-double-scale/demo/
     L.control.doubleScale( {
     			type: 'both',
     			position: 'bottomleft', 
-    			backgroundColor: 'white',
-    			opacity: 0.4,
     			maxUnitsWidth: 300, 
     		}).addTo(map);
 
@@ -45,13 +43,6 @@ Default: `metric`
 
 ### position
 leaflet.Control [options.position](http://leafletjs.com/reference.html#control-options)
-
-### backgroundColor
-Default: `white`
-
-### opacity
-The opacity of the background of the scale
-Default: `0.4`
 
 ### maxUnitsWidth
 Max width of the scale

@@ -84,7 +84,7 @@
 
             if (!this.options.dontAddBackground){
                 var backgroundDiv = L.DomUtil.create('div', 'leaflet-control-graphicscale-background');
-                L.DomUtil.setOpacity(backgroundDiv, this.options.opacity);
+//                L.DomUtil.setOpacity(backgroundDiv, this.options.opacity);
                 backgroundDiv.style.backgroundColor = this.options.backgroundColor;
                 result.insertBefore( backgroundDiv, result.lastChild );
             }
