@@ -12,42 +12,92 @@
 
     L.Control.DoubleScale = L.Control.extend({
         options: {
-            type            : 'both', //'metric', 'nautical' or 'both'
-            position        : 'bottomleft',
-            updateWhenIdle  : false,
-            minUnitWidth    : 40,
-            maxUnitsWidth   : 200,
-            fill            : 'hollow',
-            backgroundColor : 'white',
-            opacity         : 0.4,
-            showSubunits    : false,
-            doubleLine      : false,
-            labelPlacement  : 'auto'
+            mode          : 'both',//'metric', 'nautical', or 'both'
+            position      : 'bottomleft',
+            updateWhenIdle: false,
+            minUnitWidth  : 40,
+            maxUnitsWidth : 200,
+        },
+        initialize: function ( options ) { 
+             L.Util.setOptions(this, options);
         },
 
-    onAdd: function (map) { 
-            var isBoth = (this.options.type == 'both'),
-                    metricScale,
-                    metricScale_scale,
-                    result;
+        onAdd: function (map) { 
+            this._map = map;
+            var result = L.DomUtil.create('div', 'leaflet-control-doublescale-outer');
+            
+            //Create and add nautical-scale
+            this.naticalScale = new L.Control.SingleScale( L.extend({type:'nautical', labelPlacement:'top'}, this.options ) );
+            this.naticalScale_container = this.naticalScale.onAdd( this._map );
+            result.append( this.naticalScale_container); 
+
+            //Create and add metric-scale
+            this.metricScale = new L.Control.SingleScale( L.extend({type:'metric', labelPlacement:'bottom'}, this.options ) );
+            this.metricScale_container = this.metricScale.onAdd( this._map );
+            this.metricScale._setLabelPlacement( 'bottom' );
+            result.append( this.metricScale_container); 
+            
+
+            //Adding background between the two scales
+            result.insertBefore( L.DomUtil.create('div', 'leaflet-control-doublescale-background'), result.lastChild );
+
+            this.outerElement = result;
+
+            this.setMode( this.options.mode, result );
+
+            return result;
+        },
+
+        onRemove: function (map) {
+            this.metricScale.onRemove(map);
+            this.nauticalScale.onRemove(map);
+        },
+
+        onClick: function( func, context ){ 
+            L.DomUtil.addClass( this.outerElement, 'leaflet-control-doublescale-clickable' );
+            L.DomEvent.disableClickPropagation( this.outerElement );
+            L.DomEvent.addListener( this.outerElement, 'click', func, context );
+        },
+
+        setMode: function( mode, container ){
+            this.options.mode = mode;
+            container = container || this.getContainer();
+            //outer container
+            if (mode == 'both') 
+                L.DomUtil.addClass( container, 'both');
+            else
+                L.DomUtil.removeClass( container, 'both');
+
+            //naticalScale
+            if ((mode == 'both') || (mode == 'nautical')){
+                L.DomUtil.removeClass( this.naticalScale_container, 'hidden');
+                this.naticalScale._setLabelPlacement( mode == 'both' ? 'top' : 'bottom' );
+            }
+            else
+                L.DomUtil.addClass( this.naticalScale_container, 'hidden');
+                  
+            //metricScale
+            if ((mode == 'both') || (mode == 'metric'))
+                L.DomUtil.removeClass( this.metricScale_container, 'hidden');
+            else
+                L.DomUtil.addClass( this.metricScale_container, 'hidden');
+        }
+    });
+
+
+
+    L.Control.SingleScale = L.Control.extend({
+        options: {
+            type            : 'nautical',//'metric', or 'nautical'
+            updateWhenIdle  : false,
+            minUnitWidth    : 40,
+            maxUnitsWidth   : 200
+        },
+
+        onAdd: function (map) { 
+            var result;
 
             this._map = map;
-                
-            if (isBoth){
-                this.options.type = 'nautical';
-                this.options.labelPlacement = 'top';
-                this.options.doubleLine = false;
-                    
-                //Create extra metric scale
-                var metricOptions = L.extend({}, this.options );
-                metricOptions.type = 'metric';
-                metricOptions.labelPlacement = 'bottom'; 
-                metricOptions.dontAddBackground = true; 
-                metricOptions.clickable = false; 
-                        
-                metricScale = L.control.doubleScale(metricOptions);
-                metricScale_scale = metricScale.onAdd(map);
-            }
 
             //number of units on the scale, by order of preference
             this._possibleUnitsNum = [3, 5, 2, 4];
@@ -63,82 +113,17 @@
                 0.5 : { num: 5, division: 0.1  },
                 0.25: { num: 5, division: 0.05 },
                 0.2 : { num: 2, division: 0.1  }
-      };
-
-            this._scaleInner = this._buildScale();
-            this._scale = this._addScale(this._scaleInner);
-            this.outerElement = this._scale;
-            this._setStyle(this.options);
-
-            map.on(this.options.updateWhenIdle ? 'moveend' : 'move', this._update, this);
-            map.whenReady(this._update, this);
-
-            if (isBoth){
-                result =  L.DomUtil.create('div', 'leaflet-control-graphicscale-outer');
-                result.appendChild( this._scale );
-                result.appendChild( metricScale_scale );
-                this.outerElement = result;
-            }
-            else
-                result = this._scale;
-
-            if (!this.options.dontAddBackground){
-                var backgroundDiv = L.DomUtil.create('div', 'leaflet-control-graphicscale-background');
-                L.DomUtil.setOpacity(backgroundDiv, this.options.opacity);
-                backgroundDiv.style.backgroundColor = this.options.backgroundColor;
-                result.insertBefore( backgroundDiv, result.lastChild );
-            }
-
-            return result;
-        },
-
-        onRemove: function (map) {
-            map.off(this.options.updateWhenIdle ? 'moveend' : 'move', this._update, this);
-        },
-
-        onClick: function( func, context ){
-            L.DomUtil.addClass( this.outerElement, 'leaflet-control-graphicscale-clickable' );
-            L.DomEvent.disableClickPropagation( this.outerElement );
-            L.DomEvent.addListener( this.outerElement, 'click', func, context );
-        },
+            };
 
 
-        _addScale: function (scaleInner) {
-            var scale = L.DomUtil.create('div');
-            scale.className = 'leaflet-control-graphicscale';
-            scale.appendChild( scaleInner );
-            return scale;
-        },
+            //Build the scale
+            result = L.DomUtil.create('div', 'leaflet-control-singlescale');
 
-        _setStyle: function (options) {
-            var classNames = ['leaflet-control-graphicscale-inner'];
-            if (options.fill && options.fill !== 'nofill') {
-                classNames.push('filled');
-                classNames.push('filled-'+options.fill);
-            }
-            if (options.showSubunits) {
-                classNames.push('showsubunits');
-            }
-
-            if (options.doubleLine) {
-                classNames.push('double');
-            }
-
-            classNames.push('labelPlacement-'+options.labelPlacement);
-
-            this._scaleInner.className = classNames.join(' ');
-        },
-
-        _buildScale: function() {
-            var root = document.createElement('div');
-            root.className = 'leaflet-control-graphicscale-inner';
-
-            var subunits = L.DomUtil.create('div', 'subunits', root);
-            var units = L.DomUtil.create('div', 'units', root);
+            this._scaleInner = L.DomUtil.create('div', 'leaflet-control-singlescale-inner filled filled-hollow');
+            var units = L.DomUtil.create('div', 'units', this._scaleInner);
 
             this._units = [];
             this._unitsLbls = [];
-            this._subunits = [];
 
             for (var i = 0; i < 5; i++) {
                 var unit = this._buildDivision( i%2 === 0 );
@@ -148,23 +133,34 @@
                 var unitLbl = this._buildDivisionLbl();
                 unit.appendChild(unitLbl);
                 this._unitsLbls.push(unitLbl);
-
-                var subunit = this._buildDivision( i%2 === 1 );
-                subunits.appendChild(subunit);
-                this._subunits.unshift(subunit);
             }
 
             this._zeroLbl = L.DomUtil.create('div', 'label zeroLabel');
             this._zeroLbl.innerHTML = '0';
             this._units[0].appendChild(this._zeroLbl);
 
-            this._subunitsLbl = L.DomUtil.create('div', 'label subunitsLabel');
-            this._subunitsLbl.innerHTML = '?';
-            this._subunits[4].appendChild(this._subunitsLbl);
 
-            return root;
+            this._setLabelPlacement( this.options.labelPlacement );
+
+            result.appendChild( this._scaleInner );
+
+            map.on(this.options.updateWhenIdle ? 'moveend' : 'move', this._update, this);
+            map.whenReady(this._update, this);
+
+            return result;
         },
 
+        onRemove: function (map) {
+            map.off(this.options.updateWhenIdle ? 'moveend' : 'move', this._update, this);
+        },
+
+        _setLabelPlacement: function( labelPlacement ){
+            L.DomUtil.removeClass( this._scaleInner, 'labelPlacement-top' );
+            L.DomUtil.removeClass( this._scaleInner, 'labelPlacement-bottom' );
+            L.DomUtil.addClass( this._scaleInner, 'labelPlacement-' + labelPlacement);
+        },         
+            
+           
         _buildDivision: function(fill) {
             var item = L.DomUtil.create('div', 'division');
             var l1 = L.DomUtil.create('div', 'line');
@@ -186,12 +182,12 @@
 
         _update: function () {
             var bounds = this._map.getBounds(),
-                    centerLat = bounds.getCenter().lat,
-                    //length of an half world arc at current lat
-                    halfWorldMeters = 6378137 * Math.PI * Math.cos(centerLat * Math.PI / 180),
-                    //length of this arc from map left to map right
-                    dist = halfWorldMeters * (bounds.getNorthEast().lng - bounds.getSouthWest().lng) / 180,
-                    size = this._map.getSize();
+                centerLat = bounds.getCenter().lat,
+                //length of an half world arc at current lat
+                halfWorldMeters = 6378137 * Math.PI * Math.cos(centerLat * Math.PI / 180),
+                //length of this arc from map left to map right
+                dist = halfWorldMeters * (bounds.getNorthEast().lng - bounds.getSouthWest().lng) / 180,
+                size = this._map.getSize();
 
             if (this.options.type == 'nautical'){
                 dist = dist/1.852;
@@ -204,7 +200,6 @@
 
         _updateScale: function(maxMeters, options) {
             var scale = this._getBestScale(maxMeters, options.minUnitWidth, options.maxUnitsWidth);
-            // this._render(scale.unit.unitPx, scale.numUnits, scale.unit.unitMeters);
             this._render(scale);
         },
 
@@ -221,26 +216,7 @@
                 return scaleB.score - scaleA.score;
             });
 
-            var scale = possibleScales[0];
-            scale.subunits = this._getSubunits(scale);
-
-            return scale;
-        },
-
-        _getSubunits: function(scale) {
-            var subdivision = this._possibleDivisionsSub[scale.unit.unitDivision];
-            var subunit = {};
-            subunit.subunitDivision = subdivision.division;
-            subunit.subunitMeters = subdivision.division * (scale.unit.unitMeters / scale.unit.unitDivision);
-            subunit.subunitPx = subdivision.division * (scale.unit.unitPx / scale.unit.unitDivision);
-
-            var subunits = {
-                subunit: subunit,
-                numSubunits: subdivision.num,
-                total: subdivision.num * subunit.subunitMeters
-            };
-
-            return subunits;
+            return possibleScales[0];
         },
 
         _getPossibleScales: function(possibleUnits, maxUnitsWidthPx) {
@@ -326,32 +302,24 @@
         },
 
         _render: function(scale) {
-            this._renderPart(scale.unit.unitPx, scale.unit.unitMeters, scale.numUnits, this._units, this._unitsLbls);
-            this._renderPart(scale.subunits.subunit.subunitPx, scale.subunits.subunit.subunitMeters, scale.subunits.numSubunits, this._subunits);
-
-            var subunitsDisplayUnit = this._getDisplayUnit(scale.subunits.total);
-            this._subunitsLbl.innerHTML = ''+ subunitsDisplayUnit.amount + subunitsDisplayUnit.unit;
-        },
-
-        _renderPart: function(px, meters, num, divisions, divisionsLbls) {
-            var displayUnit = this._getDisplayUnit(meters);
+            var displayUnit = this._getDisplayUnit(scale.unit.unitMeters);
 
             for (var i=0; i < this._units.length; i++) {
-                var division = divisions[i];
-                if (i < num) {
-                    division.style.width = px + 'px';
+                var division = this._units[i];
+                if (i < scale.numUnits) {
+                    division.style.width = scale.unit.unitPx + 'px';
                     division.className = 'division';
                 } else {
                     division.style.width = 0;
                     division.className = 'division hidden';
                 }
 
-                if (!divisionsLbls) continue;
+                if (!this._unitsLbls) continue;
 
-                var lbl = divisionsLbls[i];
+                var lbl = this._unitsLbls[i];
                 var lblClassNames = ['label', 'divisionLabel'];
                 
-                if (i < num) {
+                if (i < scale.numUnits) {
                     var lblText = window.numeral( (i+1)*displayUnit.amount ).format('0,0.00');
 
                     //Remove trailing zeros and decimal delimiters
@@ -359,7 +327,7 @@
                     if (lblText[ lblText.length-1 ] === window.numeral.localeData().delimiters.decimal)
                         lblText = lblText.slice(0,-1);
             
-                    if (i === num-1) {
+                    if (i === scale.numUnits-1) {
                         lblText += displayUnit.unit;
                         lblClassNames.push('labelLast');
                     } 
@@ -387,12 +355,12 @@
                     amount: meters /1000
                 };
         }
-    });
+    });//end of L.Control.SingleScale = L.Control.extend({
 
+    //*********************************************************************
     L.Map.mergeOptions({
         doubleScaleControl: false
     });
-
 
     L.Map.addInitHook(function () {
         if (this.options.doubleScaleControl) {
@@ -401,8 +369,8 @@
         }
     });
 
-    L.control.doubleScale = function (options) {
-    return new L.Control.DoubleScale(options);
+    L.Control.doubleScale = function (options) {
+        return new L.Control.DoubleScale(options);
     };
 
 }(L, this, document));

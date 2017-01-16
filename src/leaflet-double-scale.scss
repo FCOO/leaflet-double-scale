@@ -8,7 +8,7 @@
 
 
 ************************************************/
-@mixin leaflet-graphicscale-transition($transition-property, $transition-time, $method) {
+@mixin leaflet-singlescale-transition($transition-property, $transition-time, $method) {
     -webkit-transition: $transition-property $transition-time $method;
     -moz-transition: $transition-property $transition-time $method;
     -ms-transition: $transition-property $transition-time $method;
@@ -31,227 +31,167 @@ $innerPaddingRight      : $fontSize*1.5;
 
 
 /*
-If options.type = 'both' the structure is:
-<div class="leaflet-control-graphicscale-outer leaflet-control">
-    <div class="leaflet-control-graphicscale">
-        <div class="leaflet-control-graphicscale-inner">...</div>
+<div class="leaflet-control-doublescale-outer leaflet-control">
+    <div class="leaflet-control-singlescale">
+        <div class="leaflet-control-singlescale-inner">...</div>
     </div>    
-    <div class="leaflet-control-graphicscale-background">..</div>
-    <div class="leaflet-control-graphicscale"> ... </div>    
-</div>
-
-
-If options.type != 'both' the structure is:
-<div class="leaflet-control-graphicscale leaflet-control [leaflet-control-graphicscale-clickable]">
-    <div class="leaflet-control-graphicscale-background"></div>
-    <div class="leaflet-control-graphicscale-inner">
-        <div class="leaflet-control-graphicscale-inner">...</div>    
-    </div>
+    <div class="leaflet-control-doublescale-background">..</div>
+    <div class="leaflet-control-singlescale"> ... </div>    
 </div>
 
 */
 
-
-.leaflet-control-graphicscale-background {
-    position: absolute;
-    top     : 0; 
-    left    : 0;
-    z-index : 0;
-    width   : 100%;
-    height  : 100%;
-    opacity : 0.5; //0.4
-    background-color: white;//transparent;
-}
-
-
-.leaflet-control-graphicscale-clickable { 
-    border: 1px solid transparent;
-    cursor: pointer;
-    &:hover {
-        border: 1px solid black;
-//        background-color: rgba(255, 255, 255, 0.6);
-opacity : 0.7;
-
-    }
-}
-
-.leaflet-control-graphicscale-outer {
+.leaflet-control.leaflet-control-doublescale-outer {
     font-size: $fontSize;
-
-    .leaflet-control-graphicscale { 
-        position: relative;
-        z-index    : 1;
+    cursor   : inherit;
+    padding  : 0;
+    
+    .leaflet-control-doublescale-background {
+        box-sizing: border-box;
+        position: absolute;
+        top     : 0; 
+        left    : 0;
+        z-index : 0;
+        width   : 100%;
+        height  : 100%;
+        opacity : 0.5;
+        background-color: white;
+        border: 1px solid white;
+        
+    
     }
-    //Setting the margin-top/bottom when there are two scales inside a <div class="leaflet-control-graphicscale-outer">
-    .leaflet-control-graphicscale:first-child .leaflet-control-graphicscale-inner { 
-        margin-bottom: 0; 
-    }
-    .leaflet-control-graphicscale:last-child    .leaflet-control-graphicscale-inner { 
-        margin-top: -($lineHeightPx - $lineHeight - 2*$borderWidth) - $borderWidth;  
-    }
-} //end of .leaflet-control-graphicscale-outer
-
-.leaflet-control-graphicscale-inner {
-    margin-top        : $innerMarginTopAndBottom;
-    margin-bottom    : $innerMarginTopAndBottom;
-
-    margin-left    : $innerMarginLeftAndRight;
-    margin-right: $innerMarginLeftAndRight;
-
-    padding-right: $innerPaddingRight;
-
-    .units {
-        display: inline-block;
+    &.leaflet-control-doublescale-clickable:hover {        
+        .leaflet-control-doublescale-background {
+            opacity : 0.7;
+            border: 1px solid black;
+        }
     }
 
-    .subunits {
+    &.leaflet-control-doublescale-clickable {        
+        cursor: default;
+    }
+    &.hidden {
+        visibility: hidden;
+    }
+} //end of .leaflet-control-doublescale-outer
+
+.leaflet-control-singlescale { 
+    position: relative;
+    z-index : 1;
+    &.hidden {
         display: none;
     }
 
-    .label {
-        width        : 100px;
-        text-align   : center;
-        margin-bottom: $fontSize - 2px;
-        position     : absolute;
-        opacity      : 1;
-        font-size    : $fontSize;
-        @include leaflet-graphicscale-transition(opacity, .4s, linear);
+    .leaflet-control-singlescale-inner {
+        margin-top   : $innerMarginTopAndBottom;
+        margin-bottom: $innerMarginTopAndBottom;
+
+        margin-left  : $innerMarginLeftAndRight;
+        margin-right : $innerMarginLeftAndRight;
+
+        padding-right: $innerPaddingRight;
     }
 
-    //labels are on top
-    .leaflet-bottom &.labelPlacement-auto, &.labelPlacement-top {
-        margin-top: $labelMargin;
-        .label { bottom: 0; }
+    //Setting the margin-top/bottom of the two scales when both are visible inside the <div class="leaflet-control-doublescale-outer">
+    .leaflet-control-doublescale-outer.both &:first-child .leaflet-control-singlescale-inner { 
+        margin-bottom: 0; 
     }
-
-    .leaflet-top &.labelPlacement-auto, &.labelPlacement-bottom {
-        margin-bottom: $labelMargin;
+    .leaflet-control-doublescale-outer.both &:last-child  .leaflet-control-singlescale-inner { 
+        margin-top: -($lineHeightPx - $lineHeight - 2*$borderWidth) - $borderWidth;  
     }
-
-    .divisionLabel {
-        right: 0;
-        margin-right: -50px;
-    }
-
-    .zeroLabel, .subunitsLabel {
-        left: 0;
-        margin-left: -50px;
-    }
-
-    .division {
-        display: inline-block;
-        position: relative;
-        width: 40px;
-        @include leaflet-graphicscale-transition(width, 0.4s, ease-in-out);
-
-        .line, .line2 {
-            border-style: solid;
-            position: relative;
-        }
-
-        .line2 {
-            height: 0;
-            border-width: 0;
-        }
-
-        .line {
-            height: $lineHeight;
-            border-width: $borderWidth $borderWidth $borderWidth 0;
-        }
-
-    }
-
-    .units .division:first-child .line {
-        border-left-width: $borderWidth;
-    }
-
-    .subunits .division .line {
-        border-width: $borderWidth 0 $borderWidth $borderWidth;
-    }
-
-    .fill {
-        position: relative;
-    }
-
-    &.showsubunits {
-        .subunits {
+        
+    .leaflet-control-singlescale-inner {
+        .units {
             display: inline-block;
-        }
-    }
-
-    &.double {
-        .division {
-            .line2 {
-                height      : $lineHeight;
-                border-width: 0 $borderWidth $borderWidth 0;
-            }
-        }
-
-        .units .division:first-child .line2 {
-            border-left-width: $borderWidth;
-        }
-
-        .subunits .division .line2 {
-            border-width: 0 0 $borderWidth $borderWidth;
         }
 
         .label {
-            margin-bottom: 14px;
+            width        : 100px;
+            text-align   : center;
+            margin-bottom: $fontSize - 2px;
+            position     : absolute;
+            opacity      : 1;
+            font-size    : $fontSize;
+            @include leaflet-singlescale-transition(opacity, .4s, linear);
         }
-    }
 
+        //labels are on top
+        .leaflet-bottom &.labelPlacement-auto, &.labelPlacement-top {
+            margin-top: $labelMargin;
+            .label { bottom: 0; }
+        }
 
-    &.filled {
+        .leaflet-top &.labelPlacement-auto, &.labelPlacement-bottom {
+            margin-bottom: $labelMargin;
+        }
+
+        .divisionLabel {
+            right: 0;
+            margin-right: -50px;
+        }
+    
+        .zeroLabel {
+            left: 0;
+            margin-left: -50px;
+        }
+
+        .division {
+            display: inline-block;
+            position: relative;
+            width: 40px;
+            @include leaflet-singlescale-transition(width, 0.4s, ease-in-out);
+
+            .line, .line2 {
+                border-style: solid;
+                position: relative;
+            }
+
+            .line2 {
+                height: 0;
+                border-width: 0;
+            }
+
+            .line {
+                height: $lineHeight;
+                border-width: $borderWidth $borderWidth $borderWidth 0;
+            }
+        }
+
+        .units .division:first-child .line {
+            border-left-width: $borderWidth;
+        }
         .fill {
-            background-color: $color;
-            position: absolute;
-            top     : 0;
-            left    : 0;
-            right   : 0;
-            bottom  : 0;
+            position: relative;
+        }
+        &.filled {
+            .fill {
+                background-color: $color;
+                position: absolute;
+                top     : 0;
+                left    : 0;
+                right   : 0;
+                bottom  : 0;
+            }
+        }
+        &.filled-hollow {
+            .fill {
+                position: absolute;
+                top     : $fillHollowPadding;
+                left    : $fillHollowPadding;
+                right   : $fillHollowPadding;
+                bottom  : $fillHollowPadding;
+            }
         }
 
-    }
-
-    &.filled-line {
-
-        @mixin leaflet-graphicscale-fill-line {
-            height: 2px;
-            top: $lineHeight/2 - $fillLineHeight/2;
+        .division.hidden {
+            width: 0;
+            .line, .line2 {
+                height: 0;
+                border-width: 0;
+            }
+            .label {
+                opacity: 0;
+            }
         }
-
-        .line .fill {
-            @include leaflet-graphicscale-fill-line;
-        }
-
-        &.double .fill {
-            @include leaflet-graphicscale-fill-line;
-        }
-    }
-
-    &.filled-hollow {
-        .fill {
-            position: absolute;
-            top     : $fillHollowPadding;
-            left    : $fillHollowPadding;
-            right   : $fillHollowPadding;
-            bottom  : $fillHollowPadding;
-        }
-
-    }
-
-    .division.hidden {
-        width: 0;
-
-        .line, .line2 {
-            height: 0;
-            border-width: 0;
-        }
-
-        .label:not(.subunitsLabel) {
-            opacity: 0;
-        }
-    }
-} //end of .leaflet-control-graphicscale-inner
-
-
+    } //end of .leaflet-control-singlescale-inner
+} //end of .leaflet-control-singlescale { 

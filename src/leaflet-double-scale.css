@@ -9,181 +9,118 @@
 
 ************************************************/
 /*
-If options.type = 'both' the structure is:
-<div class="leaflet-control-graphicscale-outer leaflet-control">
-    <div class="leaflet-control-graphicscale">
-        <div class="leaflet-control-graphicscale-inner">...</div>
+<div class="leaflet-control-doublescale-outer leaflet-control">
+    <div class="leaflet-control-singlescale">
+        <div class="leaflet-control-singlescale-inner">...</div>
     </div>    
-    <div class="leaflet-control-graphicscale-background">..</div>
-    <div class="leaflet-control-graphicscale"> ... </div>    
-</div>
-
-
-If options.type != 'both' the structure is:
-<div class="leaflet-control-graphicscale leaflet-control [leaflet-control-graphicscale-clickable]">
-    <div class="leaflet-control-graphicscale-background"></div>
-    <div class="leaflet-control-graphicscale-inner">
-        <div class="leaflet-control-graphicscale-inner">...</div>    
-    </div>
+    <div class="leaflet-control-doublescale-background">..</div>
+    <div class="leaflet-control-singlescale"> ... </div>    
 </div>
 
 */
-.leaflet-control-graphicscale-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.5;
-  background-color: white;
-}
-
-.leaflet-control-graphicscale-clickable {
-  border: 1px solid transparent;
-  cursor: pointer;
-}
-.leaflet-control-graphicscale-clickable:hover {
-  border: 1px solid black;
-  opacity: 0.7;
-}
-
-.leaflet-control-graphicscale-outer {
+.leaflet-control.leaflet-control-doublescale-outer {
   font-size: 10px;
-}
-.leaflet-control-graphicscale-outer .leaflet-control-graphicscale {
-  position: relative;
-  z-index: 1;
-}
-.leaflet-control-graphicscale-outer .leaflet-control-graphicscale:first-child .leaflet-control-graphicscale-inner {
-  margin-bottom: 0;
-}
-.leaflet-control-graphicscale-outer .leaflet-control-graphicscale:last-child .leaflet-control-graphicscale-inner {
-  margin-top: -8px;
-}
+  cursor: inherit;
+  padding: 0; }
+  .leaflet-control.leaflet-control-doublescale-outer .leaflet-control-doublescale-background {
+    box-sizing: border-box;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.5;
+    background-color: white;
+    border: 1px solid white; }
+  .leaflet-control.leaflet-control-doublescale-outer.leaflet-control-doublescale-clickable:hover .leaflet-control-doublescale-background {
+    opacity: 0.7;
+    border: 1px solid black; }
+  .leaflet-control.leaflet-control-doublescale-outer.leaflet-control-doublescale-clickable {
+    cursor: default; }
+  .leaflet-control.leaflet-control-doublescale-outer.hidden {
+    visibility: hidden; }
 
-.leaflet-control-graphicscale-inner {
-  margin-top: 6px;
-  margin-bottom: 6px;
-  margin-left: 10px;
-  margin-right: 10px;
-  padding-right: 15px;
-}
-.leaflet-control-graphicscale-inner .units {
-  display: inline-block;
-}
-.leaflet-control-graphicscale-inner .subunits {
-  display: none;
-}
-.leaflet-control-graphicscale-inner .label {
-  width: 100px;
-  text-align: center;
-  margin-bottom: 8px;
-  position: absolute;
-  opacity: 1;
-  font-size: 10px;
-  -webkit-transition: opacity 0.4s linear;
-  -moz-transition: opacity 0.4s linear;
-  -ms-transition: opacity 0.4s linear;
-  -o-transition: opacity 0.4s linear;
-  transition: opacity 0.4s linear;
-}
-.leaflet-bottom .leaflet-control-graphicscale-inner.labelPlacement-auto, .leaflet-control-graphicscale-inner.labelPlacement-top {
-  margin-top: 15px;
-}
-.leaflet-bottom .leaflet-control-graphicscale-inner.labelPlacement-auto .label, .leaflet-control-graphicscale-inner.labelPlacement-top .label {
-  bottom: 0;
-}
-.leaflet-top .leaflet-control-graphicscale-inner.labelPlacement-auto, .leaflet-control-graphicscale-inner.labelPlacement-bottom {
-  margin-bottom: 15px;
-}
-.leaflet-control-graphicscale-inner .divisionLabel {
-  right: 0;
-  margin-right: -50px;
-}
-.leaflet-control-graphicscale-inner .zeroLabel, .leaflet-control-graphicscale-inner .subunitsLabel {
-  left: 0;
-  margin-left: -50px;
-}
-.leaflet-control-graphicscale-inner .division {
-  display: inline-block;
+.leaflet-control-singlescale {
   position: relative;
-  width: 40px;
-  -webkit-transition: width 0.4s ease-in-out;
-  -moz-transition: width 0.4s ease-in-out;
-  -ms-transition: width 0.4s ease-in-out;
-  -o-transition: width 0.4s ease-in-out;
-  transition: width 0.4s ease-in-out;
-}
-.leaflet-control-graphicscale-inner .division .line, .leaflet-control-graphicscale-inner .division .line2 {
-  border-style: solid;
-  position: relative;
-}
-.leaflet-control-graphicscale-inner .division .line2 {
-  height: 0;
-  border-width: 0;
-}
-.leaflet-control-graphicscale-inner .division .line {
-  height: 6px;
-  border-width: 1px 1px 1px 0;
-}
-.leaflet-control-graphicscale-inner .units .division:first-child .line {
-  border-left-width: 1px;
-}
-.leaflet-control-graphicscale-inner .subunits .division .line {
-  border-width: 1px 0 1px 1px;
-}
-.leaflet-control-graphicscale-inner .fill {
-  position: relative;
-}
-.leaflet-control-graphicscale-inner.showsubunits .subunits {
-  display: inline-block;
-}
-.leaflet-control-graphicscale-inner.double .division .line2 {
-  height: 6px;
-  border-width: 0 1px 1px 0;
-}
-.leaflet-control-graphicscale-inner.double .units .division:first-child .line2 {
-  border-left-width: 1px;
-}
-.leaflet-control-graphicscale-inner.double .subunits .division .line2 {
-  border-width: 0 0 1px 1px;
-}
-.leaflet-control-graphicscale-inner.double .label {
-  margin-bottom: 14px;
-}
-.leaflet-control-graphicscale-inner.filled .fill {
-  background-color: #000;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-.leaflet-control-graphicscale-inner.filled-line .line .fill {
-  height: 2px;
-  top: 2px;
-}
-.leaflet-control-graphicscale-inner.filled-line.double .fill {
-  height: 2px;
-  top: 2px;
-}
-.leaflet-control-graphicscale-inner.filled-hollow .fill {
-  position: absolute;
-  top: 1px;
-  left: 1px;
-  right: 1px;
-  bottom: 1px;
-}
-.leaflet-control-graphicscale-inner .division.hidden {
-  width: 0;
-}
-.leaflet-control-graphicscale-inner .division.hidden .line, .leaflet-control-graphicscale-inner .division.hidden .line2 {
-  height: 0;
-  border-width: 0;
-}
-.leaflet-control-graphicscale-inner .division.hidden .label:not(.subunitsLabel) {
-  opacity: 0;
-}
-
-/*# sourceMappingURL=leaflet-double-scale.css.map */
+  z-index: 1; }
+  .leaflet-control-singlescale.hidden {
+    display: none; }
+  .leaflet-control-singlescale .leaflet-control-singlescale-inner {
+    margin-top: 6px;
+    margin-bottom: 6px;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding-right: 15px; }
+  .leaflet-control-doublescale-outer.both .leaflet-control-singlescale:first-child .leaflet-control-singlescale-inner {
+    margin-bottom: 0; }
+  .leaflet-control-doublescale-outer.both .leaflet-control-singlescale:last-child .leaflet-control-singlescale-inner {
+    margin-top: -8px; }
+  .leaflet-control-singlescale .leaflet-control-singlescale-inner .units {
+    display: inline-block; }
+  .leaflet-control-singlescale .leaflet-control-singlescale-inner .label {
+    width: 100px;
+    text-align: center;
+    margin-bottom: 8px;
+    position: absolute;
+    opacity: 1;
+    font-size: 10px;
+    -webkit-transition: opacity 0.4s linear;
+    -moz-transition: opacity 0.4s linear;
+    -ms-transition: opacity 0.4s linear;
+    -o-transition: opacity 0.4s linear;
+    transition: opacity 0.4s linear; }
+  .leaflet-bottom .leaflet-control-singlescale .leaflet-control-singlescale-inner.labelPlacement-auto, .leaflet-control-singlescale .leaflet-control-singlescale-inner.labelPlacement-top {
+    margin-top: 15px; }
+    .leaflet-bottom .leaflet-control-singlescale .leaflet-control-singlescale-inner.labelPlacement-auto .label, .leaflet-control-singlescale .leaflet-control-singlescale-inner.labelPlacement-top .label {
+      bottom: 0; }
+  .leaflet-top .leaflet-control-singlescale .leaflet-control-singlescale-inner.labelPlacement-auto, .leaflet-control-singlescale .leaflet-control-singlescale-inner.labelPlacement-bottom {
+    margin-bottom: 15px; }
+  .leaflet-control-singlescale .leaflet-control-singlescale-inner .divisionLabel {
+    right: 0;
+    margin-right: -50px; }
+  .leaflet-control-singlescale .leaflet-control-singlescale-inner .zeroLabel {
+    left: 0;
+    margin-left: -50px; }
+  .leaflet-control-singlescale .leaflet-control-singlescale-inner .division {
+    display: inline-block;
+    position: relative;
+    width: 40px;
+    -webkit-transition: width 0.4s ease-in-out;
+    -moz-transition: width 0.4s ease-in-out;
+    -ms-transition: width 0.4s ease-in-out;
+    -o-transition: width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out; }
+    .leaflet-control-singlescale .leaflet-control-singlescale-inner .division .line, .leaflet-control-singlescale .leaflet-control-singlescale-inner .division .line2 {
+      border-style: solid;
+      position: relative; }
+    .leaflet-control-singlescale .leaflet-control-singlescale-inner .division .line2 {
+      height: 0;
+      border-width: 0; }
+    .leaflet-control-singlescale .leaflet-control-singlescale-inner .division .line {
+      height: 6px;
+      border-width: 1px 1px 1px 0; }
+  .leaflet-control-singlescale .leaflet-control-singlescale-inner .units .division:first-child .line {
+    border-left-width: 1px; }
+  .leaflet-control-singlescale .leaflet-control-singlescale-inner .fill {
+    position: relative; }
+  .leaflet-control-singlescale .leaflet-control-singlescale-inner.filled .fill {
+    background-color: #000;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0; }
+  .leaflet-control-singlescale .leaflet-control-singlescale-inner.filled-hollow .fill {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    right: 1px;
+    bottom: 1px; }
+  .leaflet-control-singlescale .leaflet-control-singlescale-inner .division.hidden {
+    width: 0; }
+    .leaflet-control-singlescale .leaflet-control-singlescale-inner .division.hidden .line, .leaflet-control-singlescale .leaflet-control-singlescale-inner .division.hidden .line2 {
+      height: 0;
+      border-width: 0; }
+    .leaflet-control-singlescale .leaflet-control-singlescale-inner .division.hidden .label {
+      opacity: 0; }

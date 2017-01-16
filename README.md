@@ -3,7 +3,7 @@
 
 
 ## Description
-A graphic scale for Leaftlet with metric and/or nautical scale(s)
+A graphic scale for Leaflet with metric and/or nautical scale(s)
 
 Based on [leaflet-graphicscale](https://github.com/nerik/leaflet-graphicscale) by [Erik Escoffier](https://github.com/nerik) 
 
@@ -16,28 +16,29 @@ http://FCOO.github.io/leaflet-double-scale/demo/
 
 ## Usage
 
-    L.control.doubleScale( {
-    			type: 'both',
-    			position: 'bottomleft', 
-    			maxUnitsWidth: 300, 
-    		}).addTo(map);
+    var myDoubleScale = L.Control.doubleScale( {
+    	mode: 'both',
+    	position: 'bottomleft', 
+    	maxUnitsWidth: 300, 
+    })
+	map.addControl( myDoubleScale );
 
 
 
 ## Options
 
-### type: ```'metric'|'nautical'|'both'```
-Default: `metric`
+### mode: ```'metric'|'nautical'|'both'```
+Default: `both`
 
-- 'metric'
+- `'metric'`
 
 ![](readme/metric.png)
 
-- 'nautical'
+- `'nautical'`
 
 ![](readme/nautical.png)
 
-- 'both'
+- `'both'`
 
 ![](readme/both.png)
 
@@ -51,7 +52,9 @@ Default: `200`
 ## Properties and methods
 	.outerElement //DOM-element that contains the scale. 
 
-	.onClick( func, context ) //Add click-event to the scale. Change style on mouse hover to border and less transparent 
+	.setMode: function( mode ); //Change between modes ("nautical", "metric" or "both")
+
+	.onClick( func, context ); //Add click-event to the scale. Change style on mouse hover to border and less transparent 
 
 ## Copyright and License
 This plugin is licensed under the [MIT license](https://github.com/FCOO/leaflet-double-scale/LICENSE).

@@ -26,16 +26,25 @@
 	<script src="bower_components.js"></script>
 	<script src="../src/leaflet-double-scale.js"></script>
 	<script>
-		var map = L.map('map', {doubleScaleControl: true, maxZoom:12, minZoom:3 }).setView([51.505, -0.09], 6);
+		var map = L.map('map', {doubleScaleControl: true, maxZoom:15, minZoom:3 }).setView([51.505, -0.09], 6);
 		L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-		map.on('click', function( mouseEvent ){
-			var popup = L.popup()
-				.setLatLng(mouseEvent.latlng)
-				.setContent('<p>Hello world!<br />This is a nice popup.</p>')
-				.openOn(map);
-		});
-		map.doubleScaleControl.onClick(function(){alert('click on scale')});
+		map.doubleScaleControl.onClick(function(){
+            var originalMode = map.doubleScaleControl.options.mode, newMode;
+            switch (originalMode){
+              case 'both'    : newMode = 'nautical'; break;
+              case 'nautical': newMode = 'metric';   break;
+              case 'metric'  : newMode = 'both';     break;
+            }
+            
+            map.doubleScaleControl.setMode( newMode );
+        });
+
+        var c = L.Control.doubleScale({
+            mode    : 'nautical',//'both', //'metric', 'nautical' or 'both'
+            position: 'bottomright',
+        });
+        map.addControl( c );
 
 	</script>
 </body>
