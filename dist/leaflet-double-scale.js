@@ -38,9 +38,6 @@
             result.append( this.metricScale_container); 
             
 
-            //Adding background between the two scales
-            result.insertBefore( L.DomUtil.create('div', 'leaflet-control-doublescale-background'), result.lastChild );
-
             this.outerElement = result;
 
             this.setMode( this.options.mode, result );
