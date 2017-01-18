@@ -288,10 +288,11 @@
                         return units;
                     }
                     units.push({
-                    unitMeters: unitMeters,
-                    unitPx: unitPx,
-                    unitDivision: this._possibleDivisions[j],
-                    unitScore: this._possibleDivisionsLen-j });
+                        unitMeters: unitMeters,
+                        unitPx: unitPx,
+                        unitDivision: this._possibleDivisions[j],
+                        unitScore: this._possibleDivisionsLen-j 
+                    });
                 }
             }
 
@@ -317,13 +318,8 @@
                 var lblClassNames = ['label', 'divisionLabel'];
                 
                 if (i < scale.numUnits) {
-                    var lblText = window.numeral( (i+1)*displayUnit.amount ).format('0,0.00');
+                    var lblText = window.numeral( (i+1)*displayUnit.amount ).format('0,0[.]0');
 
-                    //Remove trailing zeros and decimal delimiters
-                    lblText = lblText.replace(/[0]*$/g, "");
-                    if (lblText[ lblText.length-1 ] === window.numeral.localeData().delimiters.decimal)
-                        lblText = lblText.slice(0,-1);
-            
                     if (i === scale.numUnits-1) {
                         lblText += displayUnit.unit;
                         lblClassNames.push('labelLast');
