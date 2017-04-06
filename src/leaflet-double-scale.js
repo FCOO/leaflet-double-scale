@@ -29,13 +29,13 @@
             //Create and add nautical-scale
             this.naticalScale = new L.Control.SingleScale( L.extend({type:'nautical', labelPlacement:'top'}, this.options ) );
             this.naticalScale_container = this.naticalScale.onAdd( this._map );
-            result.append( this.naticalScale_container); 
+            result.appendChild( this.naticalScale_container); 
 
             //Create and add metric-scale
             this.metricScale = new L.Control.SingleScale( L.extend({type:'metric', labelPlacement:'bottom'}, this.options ) );
             this.metricScale_container = this.metricScale.onAdd( this._map );
             this.metricScale._setLabelPlacement( 'bottom' );
-            result.append( this.metricScale_container); 
+            result.appendChild( this.metricScale_container); 
             
 
             this.outerElement = result;
