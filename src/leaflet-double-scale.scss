@@ -8,17 +8,10 @@
 
 
 ************************************************/
-@mixin leaflet-singlescale-transition($transition-property, $transition-time, $method) {
-    -webkit-transition: $transition-property $transition-time $method;
-    -moz-transition: $transition-property $transition-time $method;
-    -ms-transition: $transition-property $transition-time $method;
-    -o-transition: $transition-property $transition-time $method;
-    transition: $transition-property $transition-time $method;
-}
-
 $lineHeight       : 6px;
 $borderWidth      : 1px;
 $color            : #000;
+$color2           : #fff;
 $fillLineHeight   : 2px;
 $fillHollowPadding: 1px;
 $fontSize         : 10px;
@@ -102,7 +95,7 @@ $innerPaddingRight      : $fontSize*1.5;
             position     : absolute;
             opacity      : 1;
             font-size    : $fontSize;
-            @include leaflet-singlescale-transition(opacity, .4s, linear);
+            transition: opacity .4s linear;
         }
 
         //labels are on top
@@ -129,7 +122,7 @@ $innerPaddingRight      : $fontSize*1.5;
             display: inline-block;
             position: relative;
             width: 40px;
-            @include leaflet-singlescale-transition(width, 0.4s, ease-in-out);
+            transition: width 0.4s ease-in-out;
 
             .line, .line2 {
                 border-style: solid;
@@ -150,28 +143,17 @@ $innerPaddingRight      : $fontSize*1.5;
         .units .division:first-child .line {
             border-left-width: $borderWidth;
         }
-        .fill {
-            position: relative;
+
+        .fill, .fill2 {
+            position: absolute;
+            top     : $fillHollowPadding;
+            left    : $fillHollowPadding;
+            right   : $fillHollowPadding;
+            bottom  : $fillHollowPadding;
         }
-        &.filled {
-            .fill {
-                background-color: $color;
-                position: absolute;
-                top     : 0;
-                left    : 0;
-                right   : 0;
-                bottom  : 0;
-            }
-        }
-        &.filled-hollow {
-            .fill {
-                position: absolute;
-                top     : $fillHollowPadding;
-                left    : $fillHollowPadding;
-                right   : $fillHollowPadding;
-                bottom  : $fillHollowPadding;
-            }
-        }
+
+        .fill  { background-color: $color;  }
+        .fill2 { background-color: $color2; }
 
         .division.hidden {
             width: 0;

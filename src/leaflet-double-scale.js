@@ -116,7 +116,7 @@
             //Build the scale
             result = L.DomUtil.create('div', 'leaflet-control-singlescale');
 
-            this._scaleInner = L.DomUtil.create('div', 'leaflet-control-singlescale-inner filled filled-hollow');
+            this._scaleInner = L.DomUtil.create('div', 'leaflet-control-singlescale-inner');
             var units = L.DomUtil.create('div', 'units', this._scaleInner);
 
             this._units = [];
@@ -158,7 +158,7 @@
         },         
             
            
-        _buildDivision: function(fill) {
+        _buildDivision: function(fill) { 
             var item = L.DomUtil.create('div', 'division');
             var l1 = L.DomUtil.create('div', 'line');
             item.appendChild( l1 );
@@ -166,8 +166,13 @@
             var l2 = L.DomUtil.create('div', 'line2');
             item.appendChild( l2 );
 
-            if (fill)  l1.appendChild( L.DomUtil.create('div', 'fill') );
-            if (!fill) l2.appendChild( L.DomUtil.create('div', 'fill') );
+            l1.appendChild( L.DomUtil.create('div', fill ? 'fill'  : 'fill2') );
+            l2.appendChild( L.DomUtil.create('div', fill ? 'fill2' : 'fill' ) );
+
+//            if (fill)
+//                l1.appendChild( L.DomUtil.create('div', 'fill') );
+//            if (!fill) 
+//                l2.appendChild( L.DomUtil.create('div', 'fill') );
 
             return item;
         },
